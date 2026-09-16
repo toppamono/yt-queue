@@ -1,0 +1,11 @@
+{
+  "name":"YT Queue - Brave YouTube連続再生",
+  "short_name":"YT Queue",
+  "description":"YouTube URLを順番に保存し、停止位置から再開できる個人用プレイヤー",
+  "start_url":"./",
+  "scope":"./",
+  "display":"standalone",
+  "background_color":"#0c0e12",
+  "theme_color":"#111318",
+  "icons":[{"src":"./icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
+}
