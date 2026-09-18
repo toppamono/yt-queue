@@ -10,8 +10,8 @@ YT Queue は Supabase Auth + Row Level Security (RLS) を使い、同じメー�
    - Project URL
    - Publishable key（`sb_publishable_...`）
 4. **Authentication > URL Configuration** で以下を設定。
-   - Site URL: `https://tsujinomix.github.io/yt-queue/`
-   - Redirect URLs: `https://tsujinomix.github.io/yt-queue/`
+   - Site URL: `https://toppamono.github.io/yt-queue/`
+   - Redirect URLs: `https://toppamono.github.io/yt-queue/`
 5. YT Queue をデスクトップPCで開き、**同期** → Project URL / Publishable key を入力 → **接続設定を保存**。
 6. 同じ画面でメールアドレスを入力し、**ログインメールを送信**。届いたMagic Linkを開く。
 7. 「同期済」と表示されたら、そのPCの現在のリストがクラウドへ保存される。
