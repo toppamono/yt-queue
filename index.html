@@ -10,20 +10,43 @@
 <link rel="icon" href="./icon.svg">
 <title>YT Queue</title>
 <style>
-:root{color-scheme:dark;--bg:#0c0e12;--panel:#151820;--line:#2a303d;--text:#f5f7fb;--muted:#aeb5c2;--accent:#ff4d4f;--good:#71d18d}*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif}body{padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}button,input,select{font:inherit}.shell{width:min(920px,100%);margin:auto;padding:10px 10px 40px}.row,.sectionhead,.urlhead{display:flex;align-items:center;gap:8px}.sectionhead,.urlhead{justify-content:space-between}h2{font-size:.95rem;margin:0}.brand{font-size:.86rem;font-weight:700;letter-spacing:.02em;color:#cbd1db}.muted{color:var(--muted)}.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px}.form{display:flex;align-items:stretch;gap:7px;margin-top:8px}.form input[type=url]{flex:1 1 auto;min-width:0}.form .primary{flex:0 0 auto;white-space:nowrap}input[type=url]{width:100%;min-width:0;background:#0e1117;color:var(--text);border:1px solid var(--line);border-radius:9px;padding:10px}button,.filebtn,select{border:1px solid var(--line);background:#1d212b;color:var(--text);border-radius:8px;padding:7px 9px;cursor:pointer}.primary{background:var(--accent);border-color:transparent;font-weight:700}.ghost{background:transparent}.player{aspect-ratio:16/9;background:#000;border-radius:10px;overflow:hidden;margin:8px 0}#player,#player iframe{width:100%!important;height:100%!important}.controls{display:flex;justify-content:center;align-items:center;gap:4px;margin-top:2px;flex-wrap:wrap}.controls button{background:transparent;border-color:#252a34;color:#89919e;padding:7px 9px;border-radius:8px;font-size:.75rem;line-height:normal;opacity:.72}.controls button:hover{opacity:1;color:#c8ced8;border-color:#3a414f}.speed{display:flex;align-items:center;gap:4px;margin-left:4px;color:#89919e;font-size:.75rem;white-space:nowrap}.speed select{padding:7px 7px;font-size:.75rem;background:transparent;color:#aab1bd;border-color:#252a34}.meta-player{position:fixed;left:-10000px;top:-10000px;width:1px;height:1px;opacity:0;pointer-events:none;overflow:hidden}.now{min-width:0}.now strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.time{font-variant-numeric:tabular-nums;font-size:.78rem;color:var(--muted)}.queue{list-style:none;margin:6px -12px -12px;padding:0;border-top:1px solid var(--line)}.item{display:grid;grid-template-columns:27px minmax(0,1fr) auto auto;gap:5px;align-items:center;min-height:36px;padding:3px 7px;border-bottom:1px solid var(--line)}.item:hover{background:#10131a}.item.current{background:#17131a;box-shadow:inset 3px 0 var(--accent)}.num{font-size:.68rem;color:#7f8795;text-align:right;font-variant-numeric:tabular-nums}.main{display:flex;align-items:center;min-width:0;gap:7px;cursor:pointer}.title{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.84rem;font-weight:600}.meta{flex:0 0 auto;font-size:.64rem;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}.ord,.actions{display:flex;gap:2px}.ord button,.actions button{padding:1px 4px;min-width:25px;min-height:25px;border-radius:5px;font-size:.68rem;background:transparent}.empty{text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:9px;padding:16px;margin-top:8px}.msg{min-height:1.1em;font-size:.78rem;color:var(--muted);margin:6px 2px 0}.ok{color:var(--good)}.err{color:#ff9294}.small{font-size:.75rem}.hidden{display:none!important}.filebtn input{display:none}@media(max-width:560px){.form{display:flex;flex-wrap:nowrap}.form input[type=url]{flex:1 1 0;min-width:0}.form .primary{flex:0 0 auto;white-space:nowrap}.card{padding:10px}.queue{margin-left:-10px;margin-right:-10px;margin-bottom:-10px}.item{grid-template-columns:23px minmax(0,1fr) auto;min-height:34px;padding:2px 4px}.title{font-size:.79rem}.meta{font-size:.61rem}.actions{display:none}.ord button{min-width:23px;min-height:23px;padding:0 3px}.controls{gap:3px}.controls button,.speed select{font-size:.72rem;padding:6px 7px}.speed{font-size:.72rem;margin-left:2px}.brand{font-size:.82rem}}
+:root{color-scheme:dark;--bg:#0c0e12;--panel:#151820;--line:#2a303d;--text:#f5f7fb;--muted:#aeb5c2;--accent:#ff4d4f;--good:#71d18d}*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif}body{padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}button,input,select{font:inherit}.shell{width:min(920px,100%);margin:auto;padding:10px 10px 40px}.row,.sectionhead,.urlhead{display:flex;align-items:center;gap:8px}.sectionhead,.urlhead{justify-content:space-between}h2{font-size:.95rem;margin:0}.brand{font-size:.86rem;font-weight:700;letter-spacing:.02em;color:#cbd1db}.muted{color:var(--muted)}.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px}.form{display:flex;align-items:stretch;gap:7px;margin-top:8px}.form input[type=url]{flex:1 1 auto;min-width:0}.form .primary{flex:0 0 auto;white-space:nowrap}input[type=url]{width:100%;min-width:0;background:#0e1117;color:var(--text);border:1px solid var(--line);border-radius:9px;padding:10px}button,.filebtn,select{border:1px solid var(--line);background:#1d212b;color:var(--text);border-radius:8px;padding:7px 9px;cursor:pointer}.primary{background:var(--accent);border-color:transparent;font-weight:700}.ghost{background:transparent}.player{aspect-ratio:16/9;background:#000;border-radius:10px;overflow:hidden;margin:8px 0}#player,#player iframe{width:100%!important;height:100%!important}.controls{display:flex;justify-content:center;align-items:center;gap:4px;margin-top:2px;flex-wrap:wrap}.controls button{background:transparent;border-color:#252a34;color:#89919e;padding:7px 9px;border-radius:8px;font-size:.75rem;line-height:normal;opacity:.72}.controls button:hover{opacity:1;color:#c8ced8;border-color:#3a414f}.speed{display:flex;align-items:center;gap:4px;margin-left:4px;color:#89919e;font-size:.75rem;white-space:nowrap}.speed select{padding:7px 7px;font-size:.75rem;background:transparent;color:#aab1bd;border-color:#252a34}.meta-player{position:fixed;left:-10000px;top:-10000px;width:1px;height:1px;opacity:0;pointer-events:none;overflow:hidden}.now{min-width:0}.now strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.time{font-variant-numeric:tabular-nums;font-size:.78rem;color:var(--muted)}.queue{list-style:none;margin:6px -12px -12px;padding:0;border-top:1px solid var(--line)}.item{display:grid;grid-template-columns:27px minmax(0,1fr) auto auto;gap:5px;align-items:center;min-height:36px;padding:3px 7px;border-bottom:1px solid var(--line)}.item:hover{background:#10131a}.item.current{background:#17131a;box-shadow:inset 3px 0 var(--accent)}.num{font-size:.68rem;color:#7f8795;text-align:right;font-variant-numeric:tabular-nums}.main{display:flex;align-items:center;min-width:0;gap:7px;cursor:pointer}.title{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.84rem;font-weight:600}.meta{flex:0 0 auto;font-size:.64rem;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}.ord,.actions{display:flex;gap:2px}.ord button,.actions button{padding:1px 4px;min-width:25px;min-height:25px;border-radius:5px;font-size:.68rem;background:transparent}.empty{text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:9px;padding:16px;margin-top:8px}.msg{min-height:1.1em;font-size:.78rem;color:var(--muted);margin:6px 2px 0}.ok{color:var(--good)}.err{color:#ff9294}.small{font-size:.75rem}.hidden{display:none!important}.filebtn input{display:none}.listmeta{display:flex;align-items:center;gap:7px}.syncmini{font-size:.7rem}.syncmini.good{color:var(--good)}.syncmini.bad{color:#ff9294}.syncdialog{width:min(520px,calc(100vw - 24px));border:1px solid var(--line);border-radius:14px;background:var(--panel);color:var(--text);padding:14px}.syncdialog::backdrop{background:#0009}.synchead{display:flex;align-items:center;justify-content:space-between;gap:10px}.synchead button{padding:3px 8px}.syncgrid{display:grid;gap:8px;margin-top:10px}.syncgrid label{display:grid;gap:4px;font-size:.75rem;color:var(--muted)}.syncgrid input{width:100%;min-width:0;background:#0e1117;color:var(--text);border:1px solid var(--line);border-radius:8px;padding:8px}.syncactions{display:flex;gap:6px;flex-wrap:wrap}.syncnote{font-size:.7rem;color:var(--muted);line-height:1.5;margin:0}.syncstatus{min-height:1.2em;margin:0;font-size:.75rem}.syncsep{border:0;border-top:1px solid var(--line);width:100%;margin:3px 0}@media(max-width:560px){.form{display:flex;flex-wrap:nowrap}.form input[type=url]{flex:1 1 0;min-width:0}.form .primary{flex:0 0 auto;white-space:nowrap}.card{padding:10px}.queue{margin-left:-10px;margin-right:-10px;margin-bottom:-10px}.item{grid-template-columns:23px minmax(0,1fr) auto;min-height:34px;padding:2px 4px}.title{font-size:.79rem}.meta{font-size:.61rem}.actions{display:none}.ord button{min-width:23px;min-height:23px;padding:0 3px}.controls{gap:3px}.controls button,.speed select{font-size:.72rem;padding:6px 7px}.speed{font-size:.72rem;margin-left:2px}.brand{font-size:.82rem}}
 </style>
 </head>
 <body>
 <main class="shell">
 <section class="card"><div class="urlhead"><h2>YouTube URLを追加</h2><span class="brand">YT Queue</span></div><form id="form" class="form"><input id="url" type="url" inputmode="url" placeholder="https://www.youtube.com/watch?v=..." required><button class="primary">追加</button></form><p id="msg" class="msg"></p></section>
 <section class="card"><div class="sectionhead"><div class="now"><span class="small muted">再生中</span><strong id="now">まだ選択されていません</strong></div><span id="time" class="time">0:00 / 0:00</span></div><div class="player"><div id="player"></div></div><div id="meta-player" class="meta-player" aria-hidden="true"></div><div class="controls"><button id="prev">◀ 前へ</button><button id="restart">↺ 最初から</button><button id="next">次へ ▶</button><label class="speed">速度 <select id="rate"><option>.75</option><option selected>1</option><option>1.25</option><option>1.5</option><option>1.75</option><option>2</option></select></label></div></section>
-<section class="card"><div class="sectionhead"><div><h2>再生リスト</h2><span id="summary" class="small muted">0本</span></div><div class="row"><button id="backup" class="ghost small">バックアップ</button><label class="filebtn ghost small">復元<input id="restore" type="file" accept="application/json,.json"></label></div></div><ol id="queue" class="queue"></ol><div id="empty" class="empty">上の欄にYouTube URLを貼り付けてください。</div></section>
+<section class="card"><div class="sectionhead"><div><h2>再生リスト</h2><div class="listmeta"><span id="summary" class="small muted">0本</span><span id="syncMini" class="syncmini muted">同期: 未設定</span></div></div><div class="row"><button id="syncOpen" class="ghost small">同期</button><button id="backup" class="ghost small">バックアップ</button><label class="filebtn ghost small">復元<input id="restore" type="file" accept="application/json,.json"></label></div></div><ol id="queue" class="queue"></ol><div id="empty" class="empty">上の欄にYouTube URLを貼り付けてください。</div></section>
+<dialog id="syncDialog" class="syncdialog">
+<div class="synchead"><h2>端末間同期</h2><button id="syncClose" class="ghost" type="button">×</button></div>
+<p class="syncnote">同じメールアドレスで、PC・ノートPC・Androidの再生リストと再生位置を共有します。</p>
+<div class="syncgrid">
+<label>Supabase Project URL<input id="syncUrl" type="url" autocomplete="off" placeholder="https://xxxxx.supabase.co"></label>
+<label>Publishable key<input id="syncKey" type="text" autocomplete="off" placeholder="sb_publishable_..."></label>
+<button id="syncSave" class="ghost" type="button">接続設定を保存</button>
+<hr class="syncsep">
+<label>ログイン用メール<input id="syncEmail" type="email" autocomplete="email" placeholder="you@example.com"></label>
+<div class="syncactions">
+<button id="syncLogin" class="primary" type="button">ログインメールを送信</button>
+<button id="syncNow" class="ghost hidden" type="button">今すぐ同期</button>
+<button id="syncLogout" class="ghost hidden" type="button">ログアウト</button>
+</div>
+<p id="syncStatus" class="syncstatus muted"></p>
+<p class="syncnote">※ Secret key / service_role key は入力しないでください。</p>
+</div>
+</dialog>
 </main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://www.youtube.com/iframe_api"></script>
 <script>
 (()=>{'use strict';
-const K='ytq_state_v3',SK='ytq_settings_v3',SAVE=2500,$=id=>document.getElementById(id);const E={form:$('form'),url:$('url'),msg:$('msg'),now:$('now'),time:$('time'),queue:$('queue'),empty:$('empty'),summary:$('summary'),prev:$('prev'),next:$('next'),restart:$('restart'),rate:$('rate'),backup:$('backup'),restore:$('restore')};let S=read(K,{items:[],i:-1}),Q=read(SK,{rate:1}),P=null,M=null,ready=false,timer=null,ending=false,metaReady=false,metaBusy=false,metaCurrent='',metaQueue=[];S.items=(Array.isArray(S.items)?S.items:[]).map(clean).filter(Boolean);S.i=S.items.length?Math.min(Math.max(Number.isInteger(S.i)?S.i:0,0),S.items.length-1):-1;Q.rate=Number(Q.rate)||1;E.rate.value=String(Q.rate);write();render();mediaHandlers();
-function read(k,d){try{return{...d,...JSON.parse(localStorage.getItem(k)||'{}')}}catch{return d}}function write(){localStorage.setItem(K,JSON.stringify(S));localStorage.setItem(SK,JSON.stringify({rate:Q.rate,auto:true}))}
+const K='ytq_state_v3',SK='ytq_settings_v3',SYK='ytq_sync_v1',SAVE=2500,$=id=>document.getElementById(id);
+const E={form:$('form'),url:$('url'),msg:$('msg'),now:$('now'),time:$('time'),queue:$('queue'),empty:$('empty'),summary:$('summary'),prev:$('prev'),next:$('next'),restart:$('restart'),rate:$('rate'),backup:$('backup'),restore:$('restore'),syncOpen:$('syncOpen'),syncMini:$('syncMini'),syncDialog:$('syncDialog'),syncClose:$('syncClose'),syncUrl:$('syncUrl'),syncKey:$('syncKey'),syncEmail:$('syncEmail'),syncSave:$('syncSave'),syncLogin:$('syncLogin'),syncNow:$('syncNow'),syncLogout:$('syncLogout'),syncStatus:$('syncStatus')};
+let S=read(K,{items:[],i:-1}),Q=read(SK,{rate:1}),C=read(SYK,{url:'',key:'',email:''}),P=null,M=null,ready=false,timer=null,ending=false,metaReady=false,metaBusy=false,metaCurrent='',metaQueue=[];
+let SB=null,cloudUser=null,syncTimer=null,pushTimer=null,dirty=false,localVer=0,lastRemoteAt=0,applyingRemote=false,cloudBusy=false;
+S.items=(Array.isArray(S.items)?S.items:[]).map(clean).filter(Boolean);S.i=S.items.length?Math.min(Math.max(Number.isInteger(S.i)?S.i:0,0),S.items.length-1):-1;Q.rate=Number(Q.rate)||1;E.rate.value=String(Q.rate);write(false);render();mediaHandlers();initSync();
+function read(k,d){try{return{...d,...JSON.parse(localStorage.getItem(k)||'{}')}}catch{return d}}function write(mark=true){localStorage.setItem(K,JSON.stringify(S));localStorage.setItem(SK,JSON.stringify({rate:Q.rate,auto:true}));if(mark&&!applyingRemote){dirty=true;localVer++;scheduleCloudPush()}}
 function clean(x){const id=vid(x?.id||x?.url);if(!id)return null;return{id,url:'https://www.youtube.com/watch?v='+id,title:String(x.title||id).slice(0,300),pos:Math.max(0,+x.pos||+x.position||0),dur:Math.max(0,+x.dur||+x.duration||0),done:!!(x.done||x.completed)}}
 function vid(v){v=String(v||'').trim();if(/^[\w-]{11}$/.test(v))return v;try{const u=new URL(v.startsWith('http')?v:'https://'+v),h=u.hostname.replace(/^www\.|^m\./,'');if(h==='youtu.be')return chk(u.pathname.split('/').filter(Boolean)[0]);if(h==='youtube.com'||h.endsWith('.youtube.com')){const q=u.searchParams.get('v');if(q)return chk(q);const p=u.pathname.split('/').filter(Boolean);if(['shorts','embed','live'].includes(p[0]))return chk(p[1])}}catch{}return null}function chk(v){v=String(v||'').split(/[?&#]/)[0];return /^[\w-]{11}$/.test(v)?v:null}
 window.onYouTubeIframeAPIReady=()=>{P=new YT.Player('player',{width:'100%',height:'100%',playerVars:{autoplay:0,controls:1,playsinline:1,rel:0,enablejsapi:1,origin:location.origin},events:{onReady(){ready=true;if(S.i>=0)load(S.i,false,false);timer=setInterval(tick,SAVE);updateMedia()},onStateChange:onState,onError:e=>msg(({2:'URLまたは動画IDが正しくありません。',5:'この動画は再生できません。',100:'動画が削除または非公開です。',101:'外部サイトでの埋め込みが許可されていません。',150:'外部サイトでの埋め込みが許可されていません。',153:'YouTube側が埋め込み元を確認できません。'}[e.data]||'YouTube再生エラー '+e.data),'err')}});M=new YT.Player('meta-player',{width:'1',height:'1',playerVars:{autoplay:0,controls:0,playsinline:1,rel:0,enablejsapi:1,origin:location.origin},events:{onReady(){metaReady=true;hydrateTitles()},onStateChange:metaState,onError:()=>setTimeout(metaNext,40)}});};
@@ -35,7 +58,7 @@ function metaState(e){if(e.data!==YT.PlayerState.CUED)return;try{const d=M.getVi
 function onState(e){if(!cur())return;if(e.data===YT.PlayerState.PLAYING||e.data===YT.PlayerState.PAUSED||e.data===YT.PlayerState.CUED){const d=data();if(d?.video_id===cur().id&&d.title)cur().title=d.title;save();applyRate();render();updateMedia()}if(e.data===YT.PlayerState.ENDED)ended()}
 function data(){try{return P.getVideoData()}catch{return null}}function cur(){return S.items[S.i]||null}
 function load(i,play=true,saveOld=true){if(!ready||!S.items[i])return;if(saveOld)save();S.i=i;const x=cur();if(x.done)x.pos=0;x.done=false;ending=false;write();render();updateMedia();try{const o={videoId:x.id,startSeconds:Math.max(0,+x.pos||0)};play?P.loadVideoById(o):P.cueVideoById(o);applyRate()}catch{}}
-function save(){if(!ready||!cur()||ending)return;try{const d=data();if(d?.video_id&&d.video_id!==cur().id)return;const p=+P.getCurrentTime()||0,dur=+P.getDuration()||0;if(p>=0)cur().pos=p;if(dur>0)cur().dur=dur;write()}catch{}}
+function save(){if(!ready||!cur()||ending)return;try{const d=data();if(d?.video_id&&d.video_id!==cur().id)return;const x=cur(),oldP=+x.pos||0,oldD=+x.dur||0,p=+P.getCurrentTime()||0,dur=+P.getDuration()||0;if(p>=0)x.pos=p;if(dur>0)x.dur=dur;if(Math.abs((+x.pos||0)-oldP)>.45||Math.abs((+x.dur||0)-oldD)>.45)write()}catch{}}
 function tick(){if(!ready)return;save();renderProgress();try{const d=+P.getDuration()||0,p=+P.getCurrentTime()||0;if(d>0&&d-p<.35&&P.getPlayerState()!==YT.PlayerState.PLAYING&&cur()&&!cur().done)ended()}catch{}}
 function ended(){if(ending||!cur())return;ending=true;cur().pos=0;cur().done=true;write();render();updateMedia();if(S.i<S.items.length-1)setTimeout(()=>load(S.i+1,true,false),150);else ending=false}
 function applyRate(){try{P.setPlaybackRate(Q.rate)}catch{}}
@@ -48,12 +71,87 @@ function fmt(n){n=Math.max(0,Math.floor(+n||0));const h=Math.floor(n/3600),m=Mat
 function msg(t,c=''){E.msg.textContent=t;E.msg.className='msg '+c}
 function backup(){save();const b=new Blob([JSON.stringify({app:'YT Queue',version:3,state:S,settings:{rate:Q.rate,auto:true}},null,2)],{type:'application/json'}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download='yt-queue-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)}
 async function restore(f){try{const j=JSON.parse(await f.text()),s=j.state||j;S={items:(s.items||[]).map(clean).filter(Boolean),i:Number.isInteger(s.i)?s.i:Number.isInteger(s.currentIndex)?s.currentIndex:0};if(!S.items.length)S.i=-1;else S.i=Math.min(Math.max(S.i,0),S.items.length-1);if(j.settings)Q.rate=+j.settings.rate||1;E.rate.value=String(Q.rate);write();render();hydrateTitles();if(ready&&S.i>=0)load(S.i,false,false);msg('バックアップを復元しました。','ok')}catch{msg('バックアップを読み込めませんでした。','err')}E.restore.value=''}
+function syncSet(t,kind=''){E.syncStatus.textContent=t;E.syncMini.textContent=t;E.syncMini.className='syncmini '+(kind==='good'?'good':kind==='bad'?'bad':'muted')}
+function syncFields(){E.syncUrl.value=C.url||'';E.syncKey.value=C.key||'';E.syncEmail.value=C.email||''}
+function saveSyncLocal(){localStorage.setItem(SYK,JSON.stringify(C))}
+async function initSync(){
+  syncFields();
+  if(!C.url||!C.key){syncSet('同期: 未設定');return}
+  if(!window.supabase?.createClient){syncSet('同期: 読込失敗','bad');return}
+  try{SB=window.supabase.createClient(C.url,C.key,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}})}catch{syncSet('同期: 設定エラー','bad');return}
+  SB.auth.onAuthStateChange((ev,session)=>{if(ev==='SIGNED_IN'||ev==='SIGNED_OUT'||ev==='USER_UPDATED')setTimeout(()=>setCloudUser(session?.user||null),0)});
+  try{const {data,error}=await SB.auth.getSession();if(error)throw error;setCloudUser(data?.session?.user||null)}catch{syncSet('同期: 認証エラー','bad')}
+}
+function setCloudUser(u){
+  const old=cloudUser?.id||'';cloudUser=u||null;
+  E.syncLogin.classList.toggle('hidden',!!cloudUser);E.syncLogout.classList.toggle('hidden',!cloudUser);E.syncNow.classList.toggle('hidden',!cloudUser);E.syncEmail.disabled=!!cloudUser;
+  if(!cloudUser){clearInterval(syncTimer);syncTimer=null;syncSet(C.url&&C.key?'同期: ログイン待ち':'同期: 未設定');return}
+  C.email=cloudUser.email||C.email;saveSyncLocal();E.syncEmail.value=C.email||'';syncSet('同期: 接続中');
+  clearInterval(syncTimer);syncTimer=setInterval(()=>pullCloud(false),6000);
+  if(old!==cloudUser.id)setTimeout(()=>cloudBootstrap(),0)
+}
+async function saveSyncConfig(){
+  const url=E.syncUrl.value.trim().replace(/\/+$/,''),key=E.syncKey.value.trim(),email=E.syncEmail.value.trim();
+  if(!url||!key){syncSet('Project URL と Publishable key を入力してください','bad');return}
+  try{new URL(url)}catch{syncSet('Project URL が正しくありません','bad');return}
+  if(key.includes('service_role')||key.startsWith('sb_secret_')){syncSet('Secret key は使用できません','bad');return}
+  C={url,key,email};saveSyncLocal();syncSet('設定を保存しました');setTimeout(()=>location.reload(),150)
+}
+async function sendMagicLink(){
+  if(!SB){syncSet('先に接続設定を保存してください','bad');return}
+  const email=E.syncEmail.value.trim();if(!email){syncSet('メールアドレスを入力してください','bad');return}
+  C.email=email;saveSyncLocal();
+  const redirect=location.origin+location.pathname;
+  syncSet('ログインメールを送信中…');
+  const {error}=await SB.auth.signInWithOtp({email,options:{emailRedirectTo:redirect,shouldCreateUser:true}});
+  if(error)syncSet('送信失敗: '+error.message,'bad');else syncSet('ログインメールを送信しました','good')
+}
+async function logoutSync(){if(SB)await SB.auth.signOut();cloudUser=null;syncSet('同期: ログアウト')}
+function scheduleCloudPush(){if(!SB||!cloudUser)return;clearTimeout(pushTimer);pushTimer=setTimeout(()=>pushCloud(false),1800)}
+async function cloudBootstrap(){
+  if(!SB||!cloudUser)return;
+  const r=await getCloudRow();if(r===null)return;
+  if(!r){dirty=true;localVer++;await pushCloud(true);return}
+  const remoteCount=Array.isArray(r.state?.items)?r.state.items.length:0;
+  if(S.items.length>0&&remoteCount===0){dirty=true;localVer++;await pushCloud(true);return}
+  applyCloud(r)
+}
+async function getCloudRow(){
+  if(!SB||!cloudUser)return null;
+  try{const {data,error}=await SB.from('yt_queue_state').select('state,settings,updated_at').eq('user_id',cloudUser.id).maybeSingle();if(error)throw error;return data||false}catch(e){syncSet('同期エラー: '+(e.message||'接続できません'),'bad');return null}
+}
+async function pullCloud(initial=false){
+  if(!SB||!cloudUser||cloudBusy)return;
+  if(dirty&&!initial){scheduleCloudPush();return}
+  try{if(ready&&P?.getPlayerState?.()===YT.PlayerState.PLAYING&&!initial)return}catch{}
+  const r=await getCloudRow();if(!r)return;
+  const ts=Date.parse(r.updated_at)||0;if(ts<=lastRemoteAt)return;
+  applyCloud(r)
+}
+function applyCloud(r){
+  const st=r.state||{},items=(Array.isArray(st.items)?st.items:[]).map(clean).filter(Boolean);let i=items.length?Math.min(Math.max(Number.isInteger(st.i)?st.i:0,0),items.length-1):-1;
+  applyingRemote=true;S={items,i};if(r.settings?.rate)Q.rate=Number(r.settings.rate)||1;E.rate.value=String(Q.rate);write(false);render();hydrateTitles();
+  lastRemoteAt=Date.parse(r.updated_at)||Date.now();dirty=false;
+  if(ready&&cur()){try{P.cueVideoById({videoId:cur().id,startSeconds:Math.max(0,+cur().pos||0)});applyRate();updateMedia()}catch{}}
+  applyingRemote=false;syncSet('同期済 '+syncClock(lastRemoteAt),'good')
+}
+async function pushCloud(force=false){
+  if(!SB||!cloudUser||cloudBusy||(!dirty&&!force))return;
+  cloudBusy=true;const v=localVer,updated_at=new Date().toISOString(),row={user_id:cloudUser.id,state:S,settings:{rate:Q.rate,auto:true},updated_at};
+  try{
+    const {data,error}=await SB.from('yt_queue_state').upsert(row,{onConflict:'user_id'}).select('updated_at').single();if(error)throw error;
+    lastRemoteAt=Date.parse(data?.updated_at||updated_at)||Date.now();if(localVer===v)dirty=false;syncSet('同期済 '+syncClock(lastRemoteAt),'good');if(dirty)scheduleCloudPush()
+  }catch(e){syncSet('同期エラー: '+(e.message||'保存できません'),'bad')}
+  finally{cloudBusy=false}
+}
+async function syncNow(){save();await pushCloud(true);await pullCloud(false)}
+function syncClock(t){try{return new Date(t).toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'})}catch{return''}}
 function mediaHandlers(){if(!('mediaSession'in navigator))return;const set=(a,f)=>{try{navigator.mediaSession.setActionHandler(a,f)}catch{}};set('play',()=>P?.playVideo());set('pause',()=>P?.pauseVideo());set('nexttrack',()=>S.i<S.items.length-1&&load(S.i+1,true));set('previoustrack',()=>S.i>0&&load(S.i-1,true));set('seekbackward',d=>seek(-(d.seekOffset||10)));set('seekforward',d=>seek(d.seekOffset||10));set('seekto',d=>Number.isFinite(d.seekTime)&&seekTo(d.seekTime))}
 function seek(d){try{seekTo((+P.getCurrentTime()||0)+d)}catch{}}function seekTo(t){try{const d=+P.getDuration()||0;P.seekTo(Math.max(0,d?Math.min(t,d):t),true);save()}catch{}}
 function updateMedia(){if(!('mediaSession'in navigator)||!cur())return;try{navigator.mediaSession.metadata=new MediaMetadata({title:cur().title,artist:'YT Queue',album:(S.i+1)+' / '+S.items.length})}catch{}updatePosition()}
 function updatePosition(){if(!('mediaSession'in navigator)||!navigator.mediaSession.setPositionState||!cur()||!cur().dur)return;try{navigator.mediaSession.setPositionState({duration:cur().dur,playbackRate:Q.rate,position:Math.min(Math.max(cur().pos||0,0),Math.max(cur().dur-.001,0))})}catch{}}
-E.form.onsubmit=e=>{e.preventDefault();add(E.url.value);E.url.value=''};E.prev.onclick=()=>S.i>0&&load(S.i-1,true);E.next.onclick=()=>S.i<S.items.length-1&&load(S.i+1,true);E.restart.onclick=()=>{if(!cur())return;cur().pos=0;cur().done=false;write();try{P.seekTo(0,true);P.playVideo()}catch{}};E.rate.onchange=()=>{Q.rate=+E.rate.value||1;write();applyRate()};E.backup.onclick=backup;E.restore.onchange=()=>E.restore.files?.[0]&&restore(E.restore.files[0]);
-['pagehide','beforeunload'].forEach(n=>addEventListener(n,save));document.addEventListener('visibilitychange',()=>{if(document.hidden)save()});if('serviceWorker'in navigator)addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+E.form.onsubmit=e=>{e.preventDefault();add(E.url.value);E.url.value=''};E.prev.onclick=()=>S.i>0&&load(S.i-1,true);E.next.onclick=()=>S.i<S.items.length-1&&load(S.i+1,true);E.restart.onclick=()=>{if(!cur())return;cur().pos=0;cur().done=false;write();try{P.seekTo(0,true);P.playVideo()}catch{}};E.rate.onchange=()=>{Q.rate=+E.rate.value||1;write();applyRate()};E.backup.onclick=backup;E.restore.onchange=()=>E.restore.files?.[0]&&restore(E.restore.files[0]);E.syncOpen.onclick=()=>E.syncDialog.showModal();E.syncClose.onclick=()=>E.syncDialog.close();E.syncSave.onclick=saveSyncConfig;E.syncLogin.onclick=sendMagicLink;E.syncNow.onclick=syncNow;E.syncLogout.onclick=logoutSync;
+['pagehide','beforeunload'].forEach(n=>addEventListener(n,()=>{save();pushCloud(true)}));document.addEventListener('visibilitychange',()=>{if(document.hidden){save();pushCloud(true)}else pullCloud(false)});addEventListener('online',()=>pullCloud(false));if('serviceWorker'in navigator)addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
 })();
 </script>
 </body></html>
