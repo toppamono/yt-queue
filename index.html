@@ -111,9 +111,11 @@ function scheduleCloudPush(){if(!SB||!cloudUser)return;clearTimeout(pushTimer);p
 async function cloudBootstrap(){
   if(!SB||!cloudUser)return;
   const r=await getCloudRow();if(r===null)return;
-  if(!r){dirty=true;localVer++;await pushCloud(true);return}
-  const remoteCount=Array.isArray(r.state?.items)?r.state.items.length:0;
-  if(S.items.length>0&&remoteCount===0){dirty=true;localVer++;await pushCloud(true);return}
+  if(!r){
+    try{localStorage.setItem('ytq_pre_sync_backup_v1',JSON.stringify({state:S,settings:{rate:Q.rate,auto:true},saved_at:new Date().toISOString()}))}catch{}
+    applyingRemote=true;S={items:[],i:-1};write(false);render();applyingRemote=false;
+    dirty=true;localVer++;await pushCloud(true);return
+  }
   applyCloud(r)
 }
 async function getCloudRow(){
