@@ -22,11 +22,7 @@
 <div class="synchead"><h2>端末間同期</h2><button id="syncClose" class="ghost" type="button">×</button></div>
 <p class="syncnote">同じメールアドレス＋パスワードで、PC・ノートPC・Androidの再生リストと再生位置を共有します。ログイン状態は端末に保持されます。</p>
 <div class="syncgrid">
-<label>Supabase Project URL<input id="syncUrl" type="url" autocomplete="off" placeholder="https://xxxxx.supabase.co"></label>
-<label>Publishable key<input id="syncKey" type="text" autocomplete="off" placeholder="sb_publishable_..."></label>
-<button id="syncSave" class="ghost" type="button">接続設定を保存</button>
-<hr class="syncsep">
-<label>ログイン用メール<input id="syncEmail" type="email" autocomplete="email" placeholder="you@example.com"></label>
+<label>ログイン用メール<input id="syncEmail" type="email" autocomplete="username" placeholder="you@example.com"></label>
 <label id="syncPasswordRow">パスワード<input id="syncPassword" type="password" autocomplete="current-password" minlength="8" placeholder="8文字以上"></label>
 <div class="syncactions">
 <button id="syncLogin" class="primary" type="button">ログイン</button>
@@ -49,9 +45,9 @@
 <script src="https://www.youtube.com/iframe_api"></script>
 <script>
 (()=>{'use strict';
-const K='ytq_state_v3',SK='ytq_settings_v3',SYK='ytq_sync_v1',SAVE=2500,$=id=>document.getElementById(id);
-const E={form:$('form'),url:$('url'),msg:$('msg'),now:$('now'),time:$('time'),queue:$('queue'),empty:$('empty'),summary:$('summary'),prev:$('prev'),next:$('next'),restart:$('restart'),rate:$('rate'),backup:$('backup'),restore:$('restore'),syncOpen:$('syncOpen'),syncMini:$('syncMini'),syncDialog:$('syncDialog'),syncClose:$('syncClose'),syncUrl:$('syncUrl'),syncKey:$('syncKey'),syncEmail:$('syncEmail'),syncPassword:$('syncPassword'),syncPasswordRow:$('syncPasswordRow'),syncPasswordSetup:$('syncPasswordSetup'),syncNewPassword:$('syncNewPassword'),syncNewPassword2:$('syncNewPassword2'),syncSetPassword:$('syncSetPassword'),syncSave:$('syncSave'),syncLogin:$('syncLogin'),syncNow:$('syncNow'),syncLogout:$('syncLogout'),syncStatus:$('syncStatus')};
-let S=read(K,{items:[],i:-1}),Q=read(SK,{rate:1}),C=read(SYK,{url:'',key:'',email:''}),P=null,M=null,ready=false,timer=null,ending=false,metaReady=false,metaBusy=false,metaCurrent='',metaQueue=[];
+const K='ytq_state_v3',SK='ytq_settings_v3',SYK='ytq_sync_v1',SAVE=2500,SUPABASE_URL='https://qtmidlhawihpuuysvwbv.supabase.co',SUPABASE_KEY='sb_publishable_uvOGx_3I6k-eJvfvkby8rQ_cAhz2jsu',$=id=>document.getElementById(id);
+const E={form:$('form'),url:$('url'),msg:$('msg'),now:$('now'),time:$('time'),queue:$('queue'),empty:$('empty'),summary:$('summary'),prev:$('prev'),next:$('next'),restart:$('restart'),rate:$('rate'),backup:$('backup'),restore:$('restore'),syncOpen:$('syncOpen'),syncMini:$('syncMini'),syncDialog:$('syncDialog'),syncClose:$('syncClose'),syncEmail:$('syncEmail'),syncPassword:$('syncPassword'),syncPasswordRow:$('syncPasswordRow'),syncPasswordSetup:$('syncPasswordSetup'),syncNewPassword:$('syncNewPassword'),syncNewPassword2:$('syncNewPassword2'),syncSetPassword:$('syncSetPassword'),syncLogin:$('syncLogin'),syncNow:$('syncNow'),syncLogout:$('syncLogout'),syncStatus:$('syncStatus')};
+let S=read(K,{items:[],i:-1}),Q=read(SK,{rate:1}),_C=read(SYK,{email:''}),C={email:String(_C.email||'')},P=null,M=null,ready=false,timer=null,ending=false,metaReady=false,metaBusy=false,metaCurrent='',metaQueue=[];
 let SB=null,cloudUser=null,syncTimer=null,pushTimer=null,dirty=false,localVer=0,lastRemoteAt=0,applyingRemote=false,cloudBusy=false;
 S.items=(Array.isArray(S.items)?S.items:[]).map(clean).filter(Boolean);S.i=S.items.length?Math.min(Math.max(Number.isInteger(S.i)?S.i:0,0),S.items.length-1):-1;Q.rate=Number(Q.rate)||1;E.rate.value=String(Q.rate);write(false);render();mediaHandlers();initSync();
 function read(k,d){try{return{...d,...JSON.parse(localStorage.getItem(k)||'{}')}}catch{return d}}function write(mark=true){localStorage.setItem(K,JSON.stringify(S));localStorage.setItem(SK,JSON.stringify({rate:Q.rate,auto:true}));if(mark&&!applyingRemote){dirty=true;localVer++;scheduleCloudPush()}}
@@ -81,34 +77,26 @@ function msg(t,c=''){E.msg.textContent=t;E.msg.className='msg '+c}
 function backup(){save();const b=new Blob([JSON.stringify({app:'YT Queue',version:3,state:S,settings:{rate:Q.rate,auto:true}},null,2)],{type:'application/json'}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download='yt-queue-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)}
 async function restore(f){try{const j=JSON.parse(await f.text()),s=j.state||j;S={items:(s.items||[]).map(clean).filter(Boolean),i:Number.isInteger(s.i)?s.i:Number.isInteger(s.currentIndex)?s.currentIndex:0};if(!S.items.length)S.i=-1;else S.i=Math.min(Math.max(S.i,0),S.items.length-1);if(j.settings)Q.rate=+j.settings.rate||1;E.rate.value=String(Q.rate);write();render();hydrateTitles();if(ready&&S.i>=0)load(S.i,false,false);msg('バックアップを復元しました。','ok')}catch{msg('バックアップを読み込めませんでした。','err')}E.restore.value=''}
 function syncSet(t,kind=''){E.syncStatus.textContent=t;E.syncMini.textContent=t;E.syncMini.className='syncmini '+(kind==='good'?'good':kind==='bad'?'bad':'muted')}
-function syncFields(){E.syncUrl.value=C.url||'';E.syncKey.value=C.key||'';E.syncEmail.value=C.email||''}
-function saveSyncLocal(){localStorage.setItem(SYK,JSON.stringify(C))}
+function syncFields(){E.syncEmail.value=C.email||''}
+function saveSyncLocal(){localStorage.setItem(SYK,JSON.stringify({email:C.email||''}))}
 async function initSync(){
   syncFields();
-  if(!C.url||!C.key){syncSet('同期: 未設定');return}
   if(!window.supabase?.createClient){syncSet('同期: 読込失敗','bad');return}
-  try{SB=window.supabase.createClient(C.url,C.key,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}})}catch{syncSet('同期: 設定エラー','bad');return}
+  try{SB=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}})}catch{syncSet('同期: 設定エラー','bad');return}
   SB.auth.onAuthStateChange((ev,session)=>{if(ev==='SIGNED_IN'||ev==='SIGNED_OUT'||ev==='USER_UPDATED')setTimeout(()=>setCloudUser(session?.user||null),0)});
   try{const {data,error}=await SB.auth.getSession();if(error)throw error;setCloudUser(data?.session?.user||null)}catch{syncSet('同期: 認証エラー','bad')}
 }
 function setCloudUser(u){
   const old=cloudUser?.id||'';cloudUser=u||null;
   E.syncLogin.classList.toggle('hidden',!!cloudUser);E.syncLogout.classList.toggle('hidden',!cloudUser);E.syncNow.classList.toggle('hidden',!cloudUser);E.syncEmail.disabled=!!cloudUser;E.syncPasswordRow.classList.toggle('hidden',!!cloudUser);E.syncPasswordSetup.classList.toggle('hidden',!cloudUser);if(cloudUser)E.syncPassword.value='';
-  if(!cloudUser){clearInterval(syncTimer);syncTimer=null;syncSet(C.url&&C.key?'同期: ログイン待ち':'同期: 未設定');return}
+  if(!cloudUser){clearInterval(syncTimer);syncTimer=null;syncSet('同期: ログイン待ち');return}
   C.email=cloudUser.email||C.email;saveSyncLocal();E.syncEmail.value=C.email||'';syncSet('同期: 接続中');
   clearInterval(syncTimer);syncTimer=setInterval(()=>pullCloud(false),6000);
   if(old!==cloudUser.id)setTimeout(()=>cloudBootstrap(),0)
 }
-async function saveSyncConfig(){
-  const url=E.syncUrl.value.trim().replace(/\/+$/,''),key=E.syncKey.value.trim(),email=E.syncEmail.value.trim();
-  if(!url||!key){syncSet('Project URL と Publishable key を入力してください','bad');return}
-  try{new URL(url)}catch{syncSet('Project URL が正しくありません','bad');return}
-  if(key.includes('service_role')||key.startsWith('sb_secret_')){syncSet('Secret key は使用できません','bad');return}
-  C={url,key,email};saveSyncLocal();syncSet('設定を保存しました');setTimeout(()=>location.reload(),150)
-}
 function authValues(){
   const email=E.syncEmail.value.trim(),password=E.syncPassword.value;
-  if(!SB){syncSet('先に接続設定を保存してください','bad');return null}
+  if(!SB){syncSet('同期サービスを初期化できませんでした。ページを再読み込みしてください','bad');return null}
   if(!email){syncSet('メールアドレスを入力してください','bad');return null}
   if(!password||password.length<8){syncSet('パスワードは8文字以上で入力してください','bad');return null}
   C.email=email;saveSyncLocal();return{email,password}
@@ -178,7 +166,7 @@ function mediaHandlers(){if(!('mediaSession'in navigator))return;const set=(a,f)
 function seek(d){try{seekTo((+P.getCurrentTime()||0)+d)}catch{}}function seekTo(t){try{const d=+P.getDuration()||0;P.seekTo(Math.max(0,d?Math.min(t,d):t),true);save()}catch{}}
 function updateMedia(){if(!('mediaSession'in navigator)||!cur())return;try{navigator.mediaSession.metadata=new MediaMetadata({title:cur().title,artist:'YT Queue',album:(S.i+1)+' / '+S.items.length})}catch{}updatePosition()}
 function updatePosition(){if(!('mediaSession'in navigator)||!navigator.mediaSession.setPositionState||!cur()||!cur().dur)return;try{navigator.mediaSession.setPositionState({duration:cur().dur,playbackRate:Q.rate,position:Math.min(Math.max(cur().pos||0,0),Math.max(cur().dur-.001,0))})}catch{}}
-E.form.onsubmit=e=>{e.preventDefault();add(E.url.value);E.url.value=''};E.prev.onclick=()=>S.i>0&&load(S.i-1,true);E.next.onclick=()=>S.i<S.items.length-1&&load(S.i+1,true);E.restart.onclick=()=>{if(!cur())return;cur().pos=0;cur().done=false;write();try{P.seekTo(0,true);P.playVideo()}catch{}};E.rate.onchange=()=>{Q.rate=+E.rate.value||1;write();applyRate()};E.backup.onclick=backup;E.restore.onchange=()=>E.restore.files?.[0]&&restore(E.restore.files[0]);E.syncOpen.onclick=()=>E.syncDialog.showModal();E.syncClose.onclick=()=>E.syncDialog.close();E.syncSave.onclick=saveSyncConfig;E.syncLogin.onclick=loginPassword;E.syncSetPassword.onclick=setAccountPassword;E.syncNow.onclick=syncNow;E.syncLogout.onclick=logoutSync;
+E.form.onsubmit=e=>{e.preventDefault();add(E.url.value);E.url.value=''};E.prev.onclick=()=>S.i>0&&load(S.i-1,true);E.next.onclick=()=>S.i<S.items.length-1&&load(S.i+1,true);E.restart.onclick=()=>{if(!cur())return;cur().pos=0;cur().done=false;write();try{P.seekTo(0,true);P.playVideo()}catch{}};E.rate.onchange=()=>{Q.rate=+E.rate.value||1;write();applyRate()};E.backup.onclick=backup;E.restore.onchange=()=>E.restore.files?.[0]&&restore(E.restore.files[0]);E.syncOpen.onclick=()=>E.syncDialog.showModal();E.syncClose.onclick=()=>E.syncDialog.close();E.syncLogin.onclick=loginPassword;E.syncSetPassword.onclick=setAccountPassword;E.syncNow.onclick=syncNow;E.syncLogout.onclick=logoutSync;
 ['pagehide','beforeunload'].forEach(n=>addEventListener(n,()=>{save();pushCloud(true)}));document.addEventListener('visibilitychange',()=>{if(document.hidden){save();pushCloud(true)}else pullCloud(false)});addEventListener('online',()=>pullCloud(false));if('serviceWorker'in navigator)addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
 })();
 </script>
