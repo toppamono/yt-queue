@@ -20,22 +20,20 @@
 <section class="card"><div class="sectionhead"><div><h2>再生リスト</h2><div class="listmeta"><span id="summary" class="small muted">0本</span><span id="syncMini" class="syncmini muted">同期: 未設定</span></div></div><div class="row"><button id="syncOpen" class="ghost small">同期</button><button id="backup" class="ghost small">バックアップ</button><label class="filebtn ghost small">復元<input id="restore" type="file" accept="application/json,.json"></label></div></div><ol id="queue" class="queue"></ol><div id="empty" class="empty">上の欄にYouTube URLを貼り付けてください。</div></section>
 <dialog id="syncDialog" class="syncdialog">
 <div class="synchead"><h2>端末間同期</h2><button id="syncClose" class="ghost" type="button">×</button></div>
-<p class="syncnote">同じメールアドレス＋パスワードで、PC・ノートPC・Androidの再生リストと再生位置を共有します。</p>
+<p class="syncnote">同じメールアドレスで、PC・ノートPC・Androidの再生リストと再生位置を共有します。ログイン用リンクをメールで送ります。</p>
 <div class="syncgrid">
 <label>Supabase Project URL<input id="syncUrl" type="url" autocomplete="off" placeholder="https://xxxxx.supabase.co"></label>
 <label>Publishable key<input id="syncKey" type="text" autocomplete="off" placeholder="sb_publishable_..."></label>
 <button id="syncSave" class="ghost" type="button">接続設定を保存</button>
 <hr class="syncsep">
 <label>ログイン用メール<input id="syncEmail" type="email" autocomplete="email" placeholder="you@example.com"></label>
-<label>パスワード<input id="syncPassword" type="password" autocomplete="current-password" minlength="6" placeholder="6文字以上"></label>
 <div class="syncactions">
-<button id="syncLogin" class="primary" type="button">ログイン</button>
-<button id="syncSignup" class="ghost" type="button">新規登録</button>
+<button id="syncLogin" class="primary" type="button">ログインメールを送信</button>
 <button id="syncNow" class="ghost hidden" type="button">今すぐ同期</button>
 <button id="syncLogout" class="ghost hidden" type="button">ログアウト</button>
 </div>
 <p id="syncStatus" class="syncstatus muted"></p>
-<p class="syncnote">※ パスワードはこの端末に保存しません。Secret key / service_role key は入力しないでください。</p>
+<p class="syncnote">※ メール内のリンクは、ログインしたい端末のBraveで開いてください。Secret key / service_role key は入力しないでください。</p>
 </div>
 </dialog>
 </main>
@@ -44,7 +42,7 @@
 <script>
 (()=>{'use strict';
 const K='ytq_state_v3',SK='ytq_settings_v3',SYK='ytq_sync_v1',SAVE=2500,$=id=>document.getElementById(id);
-const E={form:$('form'),url:$('url'),msg:$('msg'),now:$('now'),time:$('time'),queue:$('queue'),empty:$('empty'),summary:$('summary'),prev:$('prev'),next:$('next'),restart:$('restart'),rate:$('rate'),backup:$('backup'),restore:$('restore'),syncOpen:$('syncOpen'),syncMini:$('syncMini'),syncDialog:$('syncDialog'),syncClose:$('syncClose'),syncUrl:$('syncUrl'),syncKey:$('syncKey'),syncEmail:$('syncEmail'),syncPassword:$('syncPassword'),syncSave:$('syncSave'),syncLogin:$('syncLogin'),syncSignup:$('syncSignup'),syncNow:$('syncNow'),syncLogout:$('syncLogout'),syncStatus:$('syncStatus')};
+const E={form:$('form'),url:$('url'),msg:$('msg'),now:$('now'),time:$('time'),queue:$('queue'),empty:$('empty'),summary:$('summary'),prev:$('prev'),next:$('next'),restart:$('restart'),rate:$('rate'),backup:$('backup'),restore:$('restore'),syncOpen:$('syncOpen'),syncMini:$('syncMini'),syncDialog:$('syncDialog'),syncClose:$('syncClose'),syncUrl:$('syncUrl'),syncKey:$('syncKey'),syncEmail:$('syncEmail'),syncSave:$('syncSave'),syncLogin:$('syncLogin'),syncNow:$('syncNow'),syncLogout:$('syncLogout'),syncStatus:$('syncStatus')};
 let S=read(K,{items:[],i:-1}),Q=read(SK,{rate:1}),C=read(SYK,{url:'',key:'',email:''}),P=null,M=null,ready=false,timer=null,ending=false,metaReady=false,metaBusy=false,metaCurrent='',metaQueue=[];
 let SB=null,cloudUser=null,syncTimer=null,pushTimer=null,dirty=false,localVer=0,lastRemoteAt=0,applyingRemote=false,cloudBusy=false;
 S.items=(Array.isArray(S.items)?S.items:[]).map(clean).filter(Boolean);S.i=S.items.length?Math.min(Math.max(Number.isInteger(S.i)?S.i:0,0),S.items.length-1):-1;Q.rate=Number(Q.rate)||1;E.rate.value=String(Q.rate);write(false);render();mediaHandlers();initSync();
@@ -86,7 +84,7 @@ async function initSync(){
 }
 function setCloudUser(u){
   const old=cloudUser?.id||'';cloudUser=u||null;
-  E.syncLogin.classList.toggle('hidden',!!cloudUser);E.syncSignup.classList.toggle('hidden',!!cloudUser);E.syncLogout.classList.toggle('hidden',!cloudUser);E.syncNow.classList.toggle('hidden',!cloudUser);E.syncEmail.disabled=!!cloudUser;E.syncPassword.disabled=!!cloudUser;if(cloudUser)E.syncPassword.value='';
+  E.syncLogin.classList.toggle('hidden',!!cloudUser);E.syncLogout.classList.toggle('hidden',!cloudUser);E.syncNow.classList.toggle('hidden',!cloudUser);E.syncEmail.disabled=!!cloudUser;
   if(!cloudUser){clearInterval(syncTimer);syncTimer=null;syncSet(C.url&&C.key?'同期: ログイン待ち':'同期: 未設定');return}
   C.email=cloudUser.email||C.email;saveSyncLocal();E.syncEmail.value=C.email||'';syncSet('同期: 接続中');
   clearInterval(syncTimer);syncTimer=setInterval(()=>pullCloud(false),6000);
@@ -99,25 +97,18 @@ async function saveSyncConfig(){
   if(key.includes('service_role')||key.startsWith('sb_secret_')){syncSet('Secret key は使用できません','bad');return}
   C={url,key,email};saveSyncLocal();syncSet('設定を保存しました');setTimeout(()=>location.reload(),150)
 }
-function authValues(){
-  const email=E.syncEmail.value.trim(),password=E.syncPassword.value;
+function authEmail(){
+  const email=E.syncEmail.value.trim();
   if(!SB){syncSet('先に接続設定を保存してください','bad');return null}
   if(!email){syncSet('メールアドレスを入力してください','bad');return null}
-  if(!password||password.length<6){syncSet('パスワードは6文字以上で入力してください','bad');return null}
-  C.email=email;saveSyncLocal();return{email,password}
+  C.email=email;saveSyncLocal();return email
 }
-async function loginPassword(){
-  const v=authValues();if(!v)return;syncSet('ログイン中…');
-  const {data,error}=await SB.auth.signInWithPassword(v);
-  if(error){syncSet('ログイン失敗: '+error.message,'bad');return}
-  setCloudUser(data?.user||null);syncSet('ログインしました','good')
-}
-async function signupPassword(){
-  const v=authValues();if(!v)return;syncSet('登録中…');
-  const {data,error}=await SB.auth.signUp(v);
-  if(error){syncSet('登録失敗: '+error.message,'bad');return}
-  if(data?.session){setCloudUser(data.user);syncSet('登録してログインしました','good')}
-  else syncSet('登録しました。Supabaseのメール確認がONの場合は確認メールが必要です。','good')
+async function loginMagic(){
+  const email=authEmail();if(!email)return;syncSet('ログインメールを送信中…');
+  const redirect=location.origin+location.pathname;
+  const {error}=await SB.auth.signInWithOtp({email,options:{emailRedirectTo:redirect}});
+  if(error){syncSet('メール送信失敗: '+error.message,'bad');return}
+  syncSet('ログインメールを送信しました。この端末のBraveでリンクを開いてください。','good')
 }
 async function logoutSync(){if(SB)await SB.auth.signOut();cloudUser=null;syncSet('同期: ログアウト')}
 function scheduleCloudPush(){if(!SB||!cloudUser)return;clearTimeout(pushTimer);pushTimer=setTimeout(()=>pushCloud(false),1800)}
@@ -126,7 +117,10 @@ async function cloudBootstrap(){
   const r=await getCloudRow();if(r===null)return;
   if(!r){
     try{localStorage.setItem('ytq_pre_sync_backup_v1',JSON.stringify({state:S,settings:{rate:Q.rate,auto:true},saved_at:new Date().toISOString()}))}catch{}
-    applyingRemote=true;S={items:[],i:-1};write(false);render();applyingRemote=false;
+    dirty=true;localVer++;await pushCloud(true);return
+  }
+  const remoteItems=Array.isArray(r.state?.items)?r.state.items:[];
+  if(S.items.length&&remoteItems.length===0){
     dirty=true;localVer++;await pushCloud(true);return
   }
   applyCloud(r)
@@ -165,7 +159,7 @@ function mediaHandlers(){if(!('mediaSession'in navigator))return;const set=(a,f)
 function seek(d){try{seekTo((+P.getCurrentTime()||0)+d)}catch{}}function seekTo(t){try{const d=+P.getDuration()||0;P.seekTo(Math.max(0,d?Math.min(t,d):t),true);save()}catch{}}
 function updateMedia(){if(!('mediaSession'in navigator)||!cur())return;try{navigator.mediaSession.metadata=new MediaMetadata({title:cur().title,artist:'YT Queue',album:(S.i+1)+' / '+S.items.length})}catch{}updatePosition()}
 function updatePosition(){if(!('mediaSession'in navigator)||!navigator.mediaSession.setPositionState||!cur()||!cur().dur)return;try{navigator.mediaSession.setPositionState({duration:cur().dur,playbackRate:Q.rate,position:Math.min(Math.max(cur().pos||0,0),Math.max(cur().dur-.001,0))})}catch{}}
-E.form.onsubmit=e=>{e.preventDefault();add(E.url.value);E.url.value=''};E.prev.onclick=()=>S.i>0&&load(S.i-1,true);E.next.onclick=()=>S.i<S.items.length-1&&load(S.i+1,true);E.restart.onclick=()=>{if(!cur())return;cur().pos=0;cur().done=false;write();try{P.seekTo(0,true);P.playVideo()}catch{}};E.rate.onchange=()=>{Q.rate=+E.rate.value||1;write();applyRate()};E.backup.onclick=backup;E.restore.onchange=()=>E.restore.files?.[0]&&restore(E.restore.files[0]);E.syncOpen.onclick=()=>E.syncDialog.showModal();E.syncClose.onclick=()=>E.syncDialog.close();E.syncSave.onclick=saveSyncConfig;E.syncLogin.onclick=loginPassword;E.syncSignup.onclick=signupPassword;E.syncNow.onclick=syncNow;E.syncLogout.onclick=logoutSync;
+E.form.onsubmit=e=>{e.preventDefault();add(E.url.value);E.url.value=''};E.prev.onclick=()=>S.i>0&&load(S.i-1,true);E.next.onclick=()=>S.i<S.items.length-1&&load(S.i+1,true);E.restart.onclick=()=>{if(!cur())return;cur().pos=0;cur().done=false;write();try{P.seekTo(0,true);P.playVideo()}catch{}};E.rate.onchange=()=>{Q.rate=+E.rate.value||1;write();applyRate()};E.backup.onclick=backup;E.restore.onchange=()=>E.restore.files?.[0]&&restore(E.restore.files[0]);E.syncOpen.onclick=()=>E.syncDialog.showModal();E.syncClose.onclick=()=>E.syncDialog.close();E.syncSave.onclick=saveSyncConfig;E.syncLogin.onclick=loginMagic;E.syncNow.onclick=syncNow;E.syncLogout.onclick=logoutSync;
 ['pagehide','beforeunload'].forEach(n=>addEventListener(n,()=>{save();pushCloud(true)}));document.addEventListener('visibilitychange',()=>{if(document.hidden){save();pushCloud(true)}else pullCloud(false)});addEventListener('online',()=>pullCloud(false));if('serviceWorker'in navigator)addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
 })();
 </script>
