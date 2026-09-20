@@ -107,6 +107,7 @@ function openComments(){const x=cur();if(!x){msg('先に動画を選んでくだ
 function toggleComments(){E.commentsSheet.classList.contains('open')?closeComments():openComments()}
 function saveCommentKey(){const k=E.commentsKey.value.trim();if(!k){E.commentsContent.innerHTML='<div class="comment-msg">APIキーを入力してください。</div>';return}YAKV=k;localStorage.setItem(YAK,YAKV);E.commentsSetup.classList.add('hidden');commentCache.clear();fetchComments(true)}
 function syncSet(t,kind=''){E.syncStatus.textContent=t;E.syncMini.textContent=t;E.syncMini.className='syncmini '+(kind==='good'?'good':kind==='bad'?'bad':'muted')}
+function closeSyncDialog(){if(E.syncDialog.open)E.syncDialog.close()}
 function syncFields(){E.syncEmail.value=C.email||''}
 function saveSyncLocal(){localStorage.setItem(SYK,JSON.stringify({email:C.email||''}))}
 async function initSync(){
@@ -180,14 +181,14 @@ function applyCloud(r){
   applyingRemote=true;S={items,i};if(r.settings?.rate)Q.rate=Number(r.settings.rate)||1;E.rate.value=String(Q.rate);write(false);render();hydrateTitles();
   lastRemoteAt=Date.parse(r.updated_at)||Date.now();dirty=false;
   if(ready&&cur()){try{P.cueVideoById({videoId:cur().id,startSeconds:Math.max(0,+cur().pos||0)});applyRate();updateMedia()}catch{}}
-  applyingRemote=false;syncSet('同期済 '+syncClock(lastRemoteAt),'good')
+  applyingRemote=false;syncSet('同期済 '+syncClock(lastRemoteAt),'good');closeSyncDialog()
 }
 async function pushCloud(force=false){
   if(!SB||!cloudUser||cloudBusy||(!dirty&&!force))return;
   cloudBusy=true;const v=localVer,updated_at=new Date().toISOString(),row={user_id:cloudUser.id,state:S,settings:{rate:Q.rate,auto:true},updated_at};
   try{
     const {data,error}=await SB.from('yt_queue_state').upsert(row,{onConflict:'user_id'}).select('updated_at').single();if(error)throw error;
-    lastRemoteAt=Date.parse(data?.updated_at||updated_at)||Date.now();if(localVer===v)dirty=false;syncSet('同期済 '+syncClock(lastRemoteAt),'good');if(dirty)scheduleCloudPush()
+    lastRemoteAt=Date.parse(data?.updated_at||updated_at)||Date.now();if(localVer===v)dirty=false;syncSet('同期済 '+syncClock(lastRemoteAt),'good');closeSyncDialog();if(dirty)scheduleCloudPush()
   }catch(e){syncSet('同期エラー: '+(e.message||'保存できません'),'bad')}
   finally{cloudBusy=false}
 }
