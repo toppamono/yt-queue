@@ -16,7 +16,7 @@
 <body>
 <main class="shell">
 <section class="card"><div class="urlhead"><h2>YouTube URLを追加</h2><span class="brand">YT Queue</span></div><form id="form" class="form"><input id="url" type="url" inputmode="url" placeholder="https://www.youtube.com/watch?v=..." required><button class="primary">追加</button></form><p id="msg" class="msg"></p></section>
-<section class="card"><div class="sectionhead"><div class="now"><span class="small muted">再生中</span><strong id="now">まだ選択されていません</strong></div><span id="time" class="time">0:00 / 0:00</span></div><div id="playerBox" class="player"><div id="player"></div></div><div id="meta-player" class="meta-player" aria-hidden="true"></div><div class="controls"><button id="prev">◀ 前へ</button><button id="restart">↺ 最初から</button><button id="next">次へ ▶</button><label class="speed">速度 <select id="rate"><option>.75</option><option selected>1</option><option>1.25</option><option>1.5</option><option>1.75</option><option>2</option></select></label><button id="pipBtn" class="hidden" type="button" aria-label="小窓表示" title="常に手前の小窓で表示" aria-expanded="false">▣<span class="comment-label"> PiP</span></button><button id="commentsOpen" class="commentbtn" aria-label="コメント" title="コメント" aria-expanded="false">💬<span class="comment-label"> コメント</span></button></div>
+<section class="card"><div class="sectionhead"><div class="now"><span class="small muted">再生中</span><strong id="now">まだ選択されていません</strong></div><span id="time" class="time">0:00 / 0:00</span></div><div class="player"><div id="player"></div></div><div id="meta-player" class="meta-player" aria-hidden="true"></div><div class="controls"><button id="prev">◀ 前へ</button><button id="restart">↺ 最初から</button><button id="next">次へ ▶</button><label class="speed">速度 <select id="rate"><option>.75</option><option selected>1</option><option>1.25</option><option>1.5</option><option>1.75</option><option>2</option></select></label><button id="commentsOpen" class="commentbtn" aria-label="コメント" title="コメント" aria-expanded="false">💬<span class="comment-label"> コメント</span></button></div>
 <div id="commentsSheet" class="comment-sheet" aria-label="YouTubeコメント" aria-hidden="true">
 <div class="comment-head"><strong id="commentsTitle">コメント</strong></div>
 <div id="commentsBody" class="comment-body">
@@ -58,12 +58,11 @@
 <script>
 (()=>{'use strict';
 const K='ytq_state_v3',SK='ytq_settings_v3',SYK='ytq_sync_v1',YAK='ytq_youtube_api_key_v1',SAVE=2500,SUPABASE_URL='https://qtmidlhawihpuuysvwbv.supabase.co',SUPABASE_KEY='sb_publishable_uvOGx_3I6k-eJvfvkby8rQ_cAhz2jsu',$=id=>document.getElementById(id);
-const E={form:$('form'),url:$('url'),msg:$('msg'),now:$('now'),time:$('time'),queue:$('queue'),empty:$('empty'),summary:$('summary'),playerBox:$('playerBox'),prev:$('prev'),next:$('next'),restart:$('restart'),rate:$('rate'),pipBtn:$('pipBtn'),backup:$('backup'),restore:$('restore'),syncOpen:$('syncOpen'),syncMini:$('syncMini'),syncDialog:$('syncDialog'),syncClose:$('syncClose'),syncEmail:$('syncEmail'),syncPassword:$('syncPassword'),syncPasswordRow:$('syncPasswordRow'),syncPasswordSetup:$('syncPasswordSetup'),syncNewPassword:$('syncNewPassword'),syncNewPassword2:$('syncNewPassword2'),syncSetPassword:$('syncSetPassword'),syncLogin:$('syncLogin'),syncNow:$('syncNow'),syncLogout:$('syncLogout'),syncStatus:$('syncStatus'),commentsOpen:$('commentsOpen'),commentsSheet:$('commentsSheet'),commentsTitle:$('commentsTitle'),commentsBody:$('commentsBody'),commentsSetup:$('commentsSetup'),commentsKey:$('commentsKey'),commentsKeySave:$('commentsKeySave'),commentsContent:$('commentsContent')};
+const E={form:$('form'),url:$('url'),msg:$('msg'),now:$('now'),time:$('time'),queue:$('queue'),empty:$('empty'),summary:$('summary'),prev:$('prev'),next:$('next'),restart:$('restart'),rate:$('rate'),backup:$('backup'),restore:$('restore'),syncOpen:$('syncOpen'),syncMini:$('syncMini'),syncDialog:$('syncDialog'),syncClose:$('syncClose'),syncEmail:$('syncEmail'),syncPassword:$('syncPassword'),syncPasswordRow:$('syncPasswordRow'),syncPasswordSetup:$('syncPasswordSetup'),syncNewPassword:$('syncNewPassword'),syncNewPassword2:$('syncNewPassword2'),syncSetPassword:$('syncSetPassword'),syncLogin:$('syncLogin'),syncNow:$('syncNow'),syncLogout:$('syncLogout'),syncStatus:$('syncStatus'),commentsOpen:$('commentsOpen'),commentsSheet:$('commentsSheet'),commentsTitle:$('commentsTitle'),commentsBody:$('commentsBody'),commentsSetup:$('commentsSetup'),commentsKey:$('commentsKey'),commentsKeySave:$('commentsKeySave'),commentsContent:$('commentsContent')};
 let S=read(K,{items:[],i:-1}),Q=read(SK,{rate:1}),_C=read(SYK,{email:''}),C={email:String(_C.email||'')},P=null,M=null,ready=false,timer=null,ending=false,metaReady=false,metaBusy=false,metaCurrent='',metaQueue=[];
 let SB=null,cloudUser=null,syncTimer=null,pushTimer=null,dirty=false,localVer=0,lastRemoteAt=0,applyingRemote=false,cloudBusy=false;
-let pipWin=null,pipHomeParent=null,pipHomeNext=null;
 let YAKV=localStorage.getItem(YAK)||'',commentVideo='',commentToken='',commentLoading=false,commentDone=false;const commentCache=new Map();
-S.items=(Array.isArray(S.items)?S.items:[]).map(clean).filter(Boolean);S.i=S.items.length?Math.min(Math.max(Number.isInteger(S.i)?S.i:0,0),S.items.length-1):-1;Q.rate=Number(Q.rate)||1;E.rate.value=String(Q.rate);if('documentPictureInPicture'in window)E.pipBtn.classList.remove('hidden');write(false);render();mediaHandlers();initSync();
+S.items=(Array.isArray(S.items)?S.items:[]).map(clean).filter(Boolean);S.i=S.items.length?Math.min(Math.max(Number.isInteger(S.i)?S.i:0,0),S.items.length-1):-1;Q.rate=Number(Q.rate)||1;E.rate.value=String(Q.rate);write(false);render();mediaHandlers();initSync();
 function read(k,d){try{return{...d,...JSON.parse(localStorage.getItem(k)||'{}')}}catch{return d}}function write(mark=true){localStorage.setItem(K,JSON.stringify(S));localStorage.setItem(SK,JSON.stringify({rate:Q.rate,auto:true}));if(mark&&!applyingRemote){dirty=true;localVer++;scheduleCloudPush()}}
 function clean(x){const id=vid(x?.id||x?.url);if(!id)return null;return{id,url:'https://www.youtube.com/watch?v='+id,title:String(x.title||id).slice(0,300),pos:Math.max(0,+x.pos||+x.position||0),dur:Math.max(0,+x.dur||+x.duration||0),done:!!(x.done||x.completed)}}
 function vid(v){v=String(v||'').trim();if(/^[\w-]{11}$/.test(v))return v;try{const u=new URL(v.startsWith('http')?v:'https://'+v),h=u.hostname.replace(/^www\.|^m\./,'');if(h==='youtu.be')return chk(u.pathname.split('/').filter(Boolean)[0]);if(h==='youtube.com'||h.endsWith('.youtube.com')){const q=u.searchParams.get('v');if(q)return chk(q);const p=u.pathname.split('/').filter(Boolean);if(['shorts','embed','live'].includes(p[0]))return chk(p[1])}}catch{}return null}function chk(v){v=String(v||'').split(/[?&#]/)[0];return /^[\w-]{11}$/.test(v)?v:null}
@@ -202,34 +201,7 @@ function mediaHandlers(){if(!('mediaSession'in navigator))return;const set=(a,f)
 function seek(d){try{seekTo((+P.getCurrentTime()||0)+d)}catch{}}function seekTo(t){try{const d=+P.getDuration()||0;P.seekTo(Math.max(0,d?Math.min(t,d):t),true);save()}catch{}}
 function updateMedia(){if(!('mediaSession'in navigator)||!cur())return;try{navigator.mediaSession.metadata=new MediaMetadata({title:cur().title,artist:'YT Queue',album:(S.i+1)+' / '+S.items.length})}catch{}updatePosition()}
 function updatePosition(){if(!('mediaSession'in navigator)||!navigator.mediaSession.setPositionState||!cur()||!cur().dur)return;try{navigator.mediaSession.setPositionState({duration:cur().dur,playbackRate:Q.rate,position:Math.min(Math.max(cur().pos||0,0),Math.max(cur().dur-.001,0))})}catch{}}
-function restorePipPlayer(){
-  try{
-    if(E.playerBox.ownerDocument!==document&&pipHomeParent){
-      if(pipHomeNext&&pipHomeNext.parentNode===pipHomeParent)pipHomeParent.insertBefore(E.playerBox,pipHomeNext);
-      else pipHomeParent.appendChild(E.playerBox)
-    }
-  }catch{}
-  pipWin=null;E.pipBtn.setAttribute('aria-expanded','false')
-}
-async function togglePip(){
-  if(pipWin&&!pipWin.closed){try{pipWin.close()}catch{}return}
-  if(!('documentPictureInPicture'in window)){msg('このブラウザは小窓表示に対応していません。','err');return}
-  if(!cur()){msg('先に動画を選んでください。','err');return}
-  try{
-    pipHomeParent=E.playerBox.parentNode;pipHomeNext=E.playerBox.nextSibling;
-    const w=await window.documentPictureInPicture.requestWindow({width:480,height:270});
-    pipWin=w;
-    const st=w.document.createElement('style');
-    st.textContent='html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#000}body{display:flex}.player{width:100%;height:100%;margin:0;border-radius:0;background:#000;overflow:hidden;aspect-ratio:auto}#player,#player iframe{width:100%!important;height:100%!important}';
-    w.document.head.appendChild(st);w.document.body.appendChild(E.playerBox);
-    E.pipBtn.setAttribute('aria-expanded','true');
-    w.addEventListener('pagehide',restorePipPlayer,{once:true})
-  }catch(e){
-    restorePipPlayer();
-    if(e?.name!=='NotAllowedError')msg('小窓表示を開始できませんでした。','err')
-  }
-}
-E.form.onsubmit=e=>{e.preventDefault();add(E.url.value);E.url.value=''};E.prev.onclick=()=>S.i>0&&load(S.i-1,true);E.next.onclick=()=>S.i<S.items.length-1&&load(S.i+1,true);E.restart.onclick=()=>{if(!cur())return;cur().pos=0;cur().done=false;write();try{P.seekTo(0,true);P.playVideo()}catch{}};E.rate.onchange=()=>{Q.rate=+E.rate.value||1;write();applyRate()};E.pipBtn.onclick=togglePip;E.backup.onclick=backup;E.restore.onchange=()=>E.restore.files?.[0]&&restore(E.restore.files[0]);E.syncOpen.onclick=()=>E.syncDialog.showModal();E.syncClose.onclick=()=>E.syncDialog.close();E.syncLogin.onclick=loginPassword;E.syncSetPassword.onclick=setAccountPassword;E.syncNow.onclick=syncNow;E.syncLogout.onclick=logoutSync;E.commentsOpen.onclick=toggleComments;E.commentsKeySave.onclick=saveCommentKey;E.commentsBody.addEventListener('scroll',()=>{if(!E.commentsSheet.classList.contains('open')||commentLoading||commentDone)return;if(E.commentsBody.scrollTop+E.commentsBody.clientHeight>=E.commentsBody.scrollHeight-120)fetchComments(false)});
+E.form.onsubmit=e=>{e.preventDefault();add(E.url.value);E.url.value=''};E.prev.onclick=()=>S.i>0&&load(S.i-1,true);E.next.onclick=()=>S.i<S.items.length-1&&load(S.i+1,true);E.restart.onclick=()=>{if(!cur())return;cur().pos=0;cur().done=false;write();try{P.seekTo(0,true);P.playVideo()}catch{}};E.rate.onchange=()=>{Q.rate=+E.rate.value||1;write();applyRate()};E.backup.onclick=backup;E.restore.onchange=()=>E.restore.files?.[0]&&restore(E.restore.files[0]);E.syncOpen.onclick=()=>E.syncDialog.showModal();E.syncClose.onclick=()=>E.syncDialog.close();E.syncLogin.onclick=loginPassword;E.syncSetPassword.onclick=setAccountPassword;E.syncNow.onclick=syncNow;E.syncLogout.onclick=logoutSync;E.commentsOpen.onclick=toggleComments;E.commentsKeySave.onclick=saveCommentKey;E.commentsBody.addEventListener('scroll',()=>{if(!E.commentsSheet.classList.contains('open')||commentLoading||commentDone)return;if(E.commentsBody.scrollTop+E.commentsBody.clientHeight>=E.commentsBody.scrollHeight-120)fetchComments(false)});
 ['pagehide','beforeunload'].forEach(n=>addEventListener(n,()=>{save();pushCloud(true)}));document.addEventListener('visibilitychange',()=>{if(document.hidden){save();pushCloud(true)}else pullCloud(false)});addEventListener('online',()=>pullCloud(false));if('serviceWorker'in navigator)addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
 })();
 </script>
