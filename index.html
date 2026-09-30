@@ -38,6 +38,7 @@
 <div class="syncactions">
 <button id="syncLogin" class="primary" type="button">ログイン</button>
 <button id="syncNow" class="ghost hidden" type="button">今すぐ同期</button>
+<button id="syncRecover" class="ghost hidden" type="button">旧リストを統合</button>
 <button id="syncLogout" class="ghost hidden" type="button">ログアウト</button>
 </div>
 <div id="syncPasswordSetup" class="hidden">
@@ -57,8 +58,8 @@
 <script src="https://www.youtube.com/iframe_api"></script>
 <script>
 (()=>{'use strict';
-const K='ytq_state_v3',SK='ytq_settings_v3',SYK='ytq_sync_v1',YAK='ytq_youtube_api_key_v1',SAVE=2500,SUPABASE_URL='https://qtmidlhawihpuuysvwbv.supabase.co',SUPABASE_KEY='sb_publishable_uvOGx_3I6k-eJvfvkby8rQ_cAhz2jsu',$=id=>document.getElementById(id);
-const E={form:$('form'),url:$('url'),msg:$('msg'),now:$('now'),time:$('time'),queue:$('queue'),empty:$('empty'),summary:$('summary'),prev:$('prev'),next:$('next'),restart:$('restart'),rate:$('rate'),backup:$('backup'),restore:$('restore'),syncOpen:$('syncOpen'),syncMini:$('syncMini'),syncDialog:$('syncDialog'),syncClose:$('syncClose'),syncEmail:$('syncEmail'),syncPassword:$('syncPassword'),syncPasswordRow:$('syncPasswordRow'),syncPasswordSetup:$('syncPasswordSetup'),syncNewPassword:$('syncNewPassword'),syncNewPassword2:$('syncNewPassword2'),syncSetPassword:$('syncSetPassword'),syncLogin:$('syncLogin'),syncNow:$('syncNow'),syncLogout:$('syncLogout'),syncStatus:$('syncStatus'),commentsOpen:$('commentsOpen'),commentsSheet:$('commentsSheet'),commentsTitle:$('commentsTitle'),commentsBody:$('commentsBody'),commentsSetup:$('commentsSetup'),commentsKey:$('commentsKey'),commentsKeySave:$('commentsKeySave'),commentsContent:$('commentsContent')};
+const K='ytq_state_v3',SK='ytq_settings_v3',SYK='ytq_sync_v1',YAK='ytq_youtube_api_key_v1',PBK='ytq_pre_sync_backup_v1',HBK='ytq_local_snapshots_v1',SAVE=2500,SUPABASE_URL='https://qtmidlhawihpuuysvwbv.supabase.co',SUPABASE_KEY='sb_publishable_uvOGx_3I6k-eJvfvkby8rQ_cAhz2jsu',$=id=>document.getElementById(id);
+const E={form:$('form'),url:$('url'),msg:$('msg'),now:$('now'),time:$('time'),queue:$('queue'),empty:$('empty'),summary:$('summary'),prev:$('prev'),next:$('next'),restart:$('restart'),rate:$('rate'),backup:$('backup'),restore:$('restore'),syncOpen:$('syncOpen'),syncMini:$('syncMini'),syncDialog:$('syncDialog'),syncClose:$('syncClose'),syncEmail:$('syncEmail'),syncPassword:$('syncPassword'),syncPasswordRow:$('syncPasswordRow'),syncPasswordSetup:$('syncPasswordSetup'),syncNewPassword:$('syncNewPassword'),syncNewPassword2:$('syncNewPassword2'),syncSetPassword:$('syncSetPassword'),syncLogin:$('syncLogin'),syncNow:$('syncNow'),syncRecover:$('syncRecover'),syncLogout:$('syncLogout'),syncStatus:$('syncStatus'),commentsOpen:$('commentsOpen'),commentsSheet:$('commentsSheet'),commentsTitle:$('commentsTitle'),commentsBody:$('commentsBody'),commentsSetup:$('commentsSetup'),commentsKey:$('commentsKey'),commentsKeySave:$('commentsKeySave'),commentsContent:$('commentsContent')};
 let S=read(K,{items:[],i:-1}),Q=read(SK,{rate:1}),_C=read(SYK,{email:''}),C={email:String(_C.email||'')},P=null,M=null,ready=false,timer=null,ending=false,metaReady=false,metaBusy=false,metaCurrent='',metaQueue=[];
 let SB=null,cloudUser=null,syncTimer=null,pushTimer=null,dirty=false,localVer=0,lastRemoteAt=0,applyingRemote=false,cloudBusy=false,cloudReady=false,bootstrapPromise=null;
 let YAKV=localStorage.getItem(YAK)||'',commentVideo='',commentToken='',commentLoading=false,commentDone=false;const commentCache=new Map();
@@ -107,8 +108,37 @@ function openComments(){const x=cur();if(!x){msg('先に動画を選んでくだ
 function toggleComments(){E.commentsSheet.classList.contains('open')?closeComments():openComments()}
 function saveCommentKey(){const k=E.commentsKey.value.trim();if(!k){E.commentsContent.innerHTML='<div class="comment-msg">APIキーを入力してください。</div>';return}YAKV=k;localStorage.setItem(YAK,YAKV);E.commentsKey.value='';E.commentsSetup.classList.add('hidden');commentCache.clear();if(cloudUser){dirty=true;localVer++;scheduleCloudPush()}fetchComments(true)}
 function syncSet(t,kind=''){E.syncStatus.textContent=t;E.syncMini.textContent=t;E.syncMini.className='syncmini '+(kind==='good'?'good':kind==='bad'?'bad':'muted')}
+function backupItemsFrom(v){try{const j=typeof v==='string'?JSON.parse(v):v,st=j?.state||j;return(Array.isArray(st?.items)?st.items:[]).map(clean).filter(Boolean)}catch{return[]}}
+function recoveryItems(){
+  const out=[],seen=new Set(),add=xs=>xs.forEach(x=>{if(!seen.has(x.id)){seen.add(x.id);out.push(x)}});
+  add(backupItemsFrom(localStorage.getItem(PBK)||''));
+  try{const h=JSON.parse(localStorage.getItem(HBK)||'[]');(Array.isArray(h)?h:[]).forEach(x=>add(backupItemsFrom(x)))}catch{}
+  return out
+}
+function updateRecoveryUI(){
+  const n=recoveryItems().filter(x=>!S.items.some(y=>y.id===x.id)).length;
+  E.syncRecover.classList.toggle('hidden',!n);E.syncRecover.textContent=n?'旧リストを統合（'+n+'本）':'旧リストを統合'
+}
+function snapshotLocal(reason='before-cloud'){
+  if(!S.items.length)return;
+  try{
+    const snap={state:JSON.parse(JSON.stringify(S)),settings:{rate:Q.rate,auto:true},saved_at:new Date().toISOString(),reason};
+    const sig=S.items.map(x=>x.id).join(',');
+    let h=JSON.parse(localStorage.getItem(HBK)||'[]');if(!Array.isArray(h))h=[];
+    if(h[0]&&backupItemsFrom(h[0]).map(x=>x.id).join(',')===sig)return;
+    h.unshift(snap);localStorage.setItem(HBK,JSON.stringify(h.slice(0,8)));updateRecoveryUI()
+  }catch{}
+}
+async function recoverOldQueue(){
+  const xs=recoveryItems(),seen=new Set(S.items.map(x=>x.id));let n=0;
+  xs.forEach(x=>{if(!seen.has(x.id)){seen.add(x.id);S.items.push(x);n++}});
+  if(!n){syncSet('追加できる旧リストはありません');updateRecoveryUI();return}
+  if(S.i<0&&S.items.length)S.i=0;write();render();hydrateTitles();updateRecoveryUI();
+  if(cloudReady)await pushCloud(true);
+  syncSet('旧リストから'+n+'本を追加して同期しました','good')
+}
 function closeSyncDialog(){if(E.syncDialog.open)E.syncDialog.close()}
-function syncFields(){E.syncEmail.value=C.email||''}
+function syncFields(){E.syncEmail.value=C.email||'';updateRecoveryUI()}
 function saveSyncLocal(){localStorage.setItem(SYK,JSON.stringify({email:C.email||''}))}
 async function initSync(){
   syncFields();
@@ -162,7 +192,7 @@ async function cloudBootstrap(){
   cloudReady=false;
   const r=await getCloudRow();if(r===null)return false;
   if(!r){
-    try{localStorage.setItem('ytq_pre_sync_backup_v1',JSON.stringify({state:S,settings:{rate:Q.rate,auto:true},saved_at:new Date().toISOString()}))}catch{}
+    try{localStorage.setItem(PBK,JSON.stringify({state:S,settings:{rate:Q.rate,auto:true},saved_at:new Date().toISOString()}));updateRecoveryUI()}catch{}
     cloudReady=true;dirty=true;localVer++;await pushCloud(true);return true
   }
   const remoteItems=Array.isArray(r.state?.items)?r.state.items:[];
@@ -186,13 +216,14 @@ async function pullCloud(initial=false){
 }
 function applyCloud(r){
   const st=r.state||{},items=(Array.isArray(st.items)?st.items:[]).map(clean).filter(Boolean);let i=items.length?Math.min(Math.max(Number.isInteger(st.i)?st.i:0,0),items.length-1):-1;
+  if(S.items.length&&S.items.map(x=>x.id).join(',')!==items.map(x=>x.id).join(','))snapshotLocal('before-cloud-apply');
   if((items[i]?.id||'')!==(cur()?.id||''))closeComments();
   const localApiKey=YAKV,remoteApiKey=String(r.settings?.youtube_api_key||'');
   if(remoteApiKey){YAKV=remoteApiKey;localStorage.setItem(YAK,YAKV)}
   applyingRemote=true;S={items,i};if(r.settings?.rate)Q.rate=Number(r.settings.rate)||1;E.rate.value=String(Q.rate);write(false);render();hydrateTitles();
   lastRemoteAt=Date.parse(r.updated_at)||Date.now();dirty=false;
   if(ready&&cur()){try{P.cueVideoById({videoId:cur().id,startSeconds:Math.max(0,+cur().pos||0)});applyRate();updateMedia()}catch{}}
-  applyingRemote=false;syncSet('同期済 '+syncClock(lastRemoteAt)+' / '+S.items.length+'本','good');closeSyncDialog();
+  applyingRemote=false;updateRecoveryUI();syncSet('同期済 '+syncClock(lastRemoteAt)+' / '+S.items.length+'本','good');closeSyncDialog();
   if(!remoteApiKey&&localApiKey){YAKV=localApiKey;dirty=true;localVer++;scheduleCloudPush()}
 }
 async function pushCloud(force=false){
@@ -210,7 +241,7 @@ function mediaHandlers(){if(!('mediaSession'in navigator))return;const set=(a,f)
 function seek(d){try{seekTo((+P.getCurrentTime()||0)+d)}catch{}}function seekTo(t){try{const d=+P.getDuration()||0;P.seekTo(Math.max(0,d?Math.min(t,d):t),true);save()}catch{}}
 function updateMedia(){if(!('mediaSession'in navigator)||!cur())return;try{navigator.mediaSession.metadata=new MediaMetadata({title:cur().title,artist:'YT Queue',album:(S.i+1)+' / '+S.items.length})}catch{}updatePosition()}
 function updatePosition(){if(!('mediaSession'in navigator)||!navigator.mediaSession.setPositionState||!cur()||!cur().dur)return;try{navigator.mediaSession.setPositionState({duration:cur().dur,playbackRate:Q.rate,position:Math.min(Math.max(cur().pos||0,0),Math.max(cur().dur-.001,0))})}catch{}}
-E.form.onsubmit=e=>{e.preventDefault();add(E.url.value);E.url.value=''};E.prev.onclick=()=>S.i>0&&load(S.i-1,true);E.next.onclick=()=>S.i<S.items.length-1&&load(S.i+1,true);E.restart.onclick=()=>{if(!cur())return;cur().pos=0;cur().done=false;write();try{P.seekTo(0,true);P.playVideo()}catch{}};E.rate.onchange=()=>{Q.rate=+E.rate.value||1;write();applyRate()};E.backup.onclick=backup;E.restore.onchange=()=>E.restore.files?.[0]&&restore(E.restore.files[0]);E.syncOpen.onclick=()=>E.syncDialog.showModal();E.syncClose.onclick=()=>E.syncDialog.close();E.syncLogin.onclick=loginPassword;E.syncSetPassword.onclick=setAccountPassword;E.syncNow.onclick=syncNow;E.syncLogout.onclick=logoutSync;E.commentsOpen.onclick=toggleComments;E.commentsKeySave.onclick=saveCommentKey;E.commentsBody.addEventListener('scroll',()=>{if(!E.commentsSheet.classList.contains('open')||commentLoading||commentDone)return;if(E.commentsBody.scrollTop+E.commentsBody.clientHeight>=E.commentsBody.scrollHeight-120)fetchComments(false)});
+E.form.onsubmit=e=>{e.preventDefault();add(E.url.value);E.url.value=''};E.prev.onclick=()=>S.i>0&&load(S.i-1,true);E.next.onclick=()=>S.i<S.items.length-1&&load(S.i+1,true);E.restart.onclick=()=>{if(!cur())return;cur().pos=0;cur().done=false;write();try{P.seekTo(0,true);P.playVideo()}catch{}};E.rate.onchange=()=>{Q.rate=+E.rate.value||1;write();applyRate()};E.backup.onclick=backup;E.restore.onchange=()=>E.restore.files?.[0]&&restore(E.restore.files[0]);E.syncOpen.onclick=()=>{updateRecoveryUI();E.syncDialog.showModal()};E.syncClose.onclick=()=>E.syncDialog.close();E.syncLogin.onclick=loginPassword;E.syncSetPassword.onclick=setAccountPassword;E.syncNow.onclick=syncNow;E.syncRecover.onclick=recoverOldQueue;E.syncLogout.onclick=logoutSync;E.commentsOpen.onclick=toggleComments;E.commentsKeySave.onclick=saveCommentKey;E.commentsBody.addEventListener('scroll',()=>{if(!E.commentsSheet.classList.contains('open')||commentLoading||commentDone)return;if(E.commentsBody.scrollTop+E.commentsBody.clientHeight>=E.commentsBody.scrollHeight-120)fetchComments(false)});
 ['pagehide','beforeunload'].forEach(n=>addEventListener(n,()=>{save();pushCloud(true)}));document.addEventListener('visibilitychange',()=>{if(document.hidden){save();pushCloud(true)}else pullCloud(false)});addEventListener('online',()=>pullCloud(false));if('serviceWorker'in navigator)addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
 })();
 </script>
